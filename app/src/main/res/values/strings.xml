@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">CurrentLocation</string>
+    <string-array name="servers">
+        <item>Server_1</item>
+        <item>Server_2</item>
+    </string-array>
 </resources>

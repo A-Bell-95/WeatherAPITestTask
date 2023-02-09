@@ -5,8 +5,8 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.core.app.ActivityCompat
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
@@ -17,9 +17,11 @@ import kz.sfizfaka.android.currentlocation.databinding.ActivityMainBinding
 import org.json.JSONObject
 
 
+
 const val API_KEY_1 = "6d65b753875f483dac4115003230702"
 const val API_KEY_2 = "BPVQKAYC45GRK39X6RMU3UHL8"
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var latitude: TextView
@@ -30,25 +32,33 @@ class MainActivity : AppCompatActivity() {
     private var lat = 0.0
     private var lon = 0.0
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
         latitude = findViewById(R.id.textView2)
         longitude = findViewById(R.id.textView3)
         temperature = findViewById(R.id.temperature)
         city = findViewById(R.id.city)
         updata = findViewById(R.id.upDate)
-        binding.button.setOnClickListener {
-            getLocation()
-        }
-        binding.server1.setOnClickListener {
-            getResult1(lat,lon)
-        }
-        binding.server2.setOnClickListener {
-            getResult2(lat,lon)
+
+        getLocation()
+
+        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(adapterView: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when (position) {
+                    0 -> getResult1(lat,lon)
+                    1 -> getResult2(lat,lon)
+                }
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+
         }
 
     }
@@ -87,6 +97,11 @@ class MainActivity : AppCompatActivity() {
                 val temp = obj.getJSONObject("current").getString("temp_c")
                 val cit = obj.getJSONObject("location").getString("name")
                 val upd = obj.getJSONObject("current").getString("last_updated")
+                when(obj.getJSONObject("current").getJSONObject("condition").getString("text")) {
+                    "Sunny" -> binding.imageView.setImageResource(R.drawable.icons8_sun_100)
+                    "Rain" -> binding.imageView.setImageResource(R.drawable.icons8_rain_100)
+                    "Snow" -> binding.imageView.setImageResource(R.drawable.icons8_snow_100)
+                }
                 temperature.text = "$temp °C"
                 city.text = cit
                 updata.text = "Last updated:$upd"
@@ -109,6 +124,7 @@ class MainActivity : AppCompatActivity() {
                 val temp = obj.getJSONObject("currentConditions").getString("temp")
                 val cit = obj.getString("address")
                 val upd = obj.getJSONObject("currentConditions").getString("datetime")
+
                 temperature.text = "$temp °C"
                 city.text = cit
                 updata.text = "Last updated:$upd"
